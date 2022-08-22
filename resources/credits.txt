@@ -1,0 +1,2 @@
+All assets except fonts are from https://www.kenney.nl/assets.
+The fonts' licences and such are in the 'licences and such' folder.

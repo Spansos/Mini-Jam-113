@@ -5,7 +5,7 @@ pg.init()
 
 
 # vars for later use
-SCREEN_DIMS = (300, 200)
+SCREEN_DIMS = (304, 208)
 CAPTION = "Temp Name"
 SCREEN_RECT = pg.Rect((0, 0), SCREEN_DIMS)
 BG_COL = (20, 30, 35)
@@ -31,4 +31,6 @@ TILE_SIZE = (32, 32)
 
 RESOURCES = {}
 for file in os.listdir("resources"):
-    RESOURCES[file] = pg.image.load(os.path.join("resources", file))
+    name, ext = file.split('.')
+    if ext == 'png':
+        RESOURCES[file] = pg.image.load(os.path.join("resources", file)).convert()

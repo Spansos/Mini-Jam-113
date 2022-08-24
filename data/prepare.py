@@ -6,7 +6,7 @@ pg.init()
 
 # vars for later use
 SCREEN_DIMS = (304, 208)
-CAPTION = "Temp Name"
+CAPTION = "sum-mus"
 SCREEN_RECT = pg.Rect((0, 0), SCREEN_DIMS)
 BG_COL = (20, 30, 35)
 

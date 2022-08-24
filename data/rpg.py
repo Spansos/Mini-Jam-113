@@ -1,5 +1,5 @@
 import pygame as pg
-
+import random as rnd
 from . import prepare, entities, render
 
 class Option:
@@ -40,14 +40,18 @@ class Textbox:
             
     def update(self, data):
         l = len(self.options)
-        keys = pg.key.get_pressed()
-        if keys[pg.K_1] and l >= 1:
+        key = None
+        for ev in data['events']:
+            if ev.type == pg.KEYDOWN:
+                key = ev.key
+                
+        if key == pg.K_1 and l >= 1:
             self.end()
             self.options[0].func(data)
-        if keys[pg.K_2] and l >= 2:
+        if key == pg.K_2 and l >= 2:
             self.end()
             self.options[1].func(data)
-        if keys[pg.K_3] and l >= 3:
+        if key == pg.K_3 and l >= 3:
             self.end()
             self.options[2].func(data)
     
@@ -57,30 +61,44 @@ class Textbox:
     def end(self):
         Textbox.current = None
 
-        
 
 def end_day_dialogue():
     opt1 = Option('yes', lambda x: new_day(x, True))
-    opt2 = Option('no', lambda x: 1)
+    opt2 = Option('no', lambda x: 0)
     Textbox.current = Textbox('Your Chambers', 'Do you want to go to sleep\nand end the current day?', (opt1, opt2))
-      
 
-def new_day(data, fadein):
-    data['tick'] = 0
+
+def new_day(data, fade):
+    from . import events
+    
+    if events.Event.cur_mail != None:
+        opt1 = Option('Acknowledged', lambda x: 0)
+        Textbox.current = Textbox('Need To Check Mail', 'You need to check the\nmail before ending the day.', (opt1,))
+        return
+        
+    
     screen = pg.display.get_surface()
     clock = pg.time.Clock()
-    if fadein:
+    if fade:
         for i in range(20):
             clock.tick(60)
             render.render(screen, data)
             screen.fill((255-255*i/20, 255-255*i/20, 255-255*i/20), special_flags=pg.BLEND_RGB_MULT)
             pg.display.update()
-            
-    entities.Player.player.rect.center = (9*16 + 8, 24)
-    entities.Player.player.pos = pg.Vector2(entities.Player.player.rect.topleft)
+
     
-    for i in range(20):
-        clock.tick(60)
-        render.render(screen, data)
-        screen.fill((255*i/20, 255*i/20, 255*i/20), special_flags=pg.BLEND_RGB_MULT)
-        pg.display.update()
+    data['tick'] = 0
+    entities.Player.player.rect.center = (28*16 + 8, 24)
+    entities.Player.player.pos = pg.Vector2(entities.Player.player.rect.topleft)
+    pos_events = events.get_pos_events(data)
+    events.Event.cur_mail = rnd.choice(pos_events)
+    data['days'] -= 1
+    if data['days'] <= 0:
+        entities.Hero()
+    
+    if fade:
+        for i in range(20):
+            clock.tick(60)
+            render.render(screen, data)
+            screen.fill((255*i/20, 255*i/20, 255*i/20), special_flags=pg.BLEND_RGB_MULT)
+            pg.display.update()
